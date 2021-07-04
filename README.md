@@ -2,7 +2,7 @@
 
 ### First Table Data_Base
 
-![](DB_Image/Table1_customer.png)
+![](DB_Image/Table1_Customer.png)
 
 ### Second Table Data_Base
 
