@@ -6,7 +6,7 @@
 
 ### Second Table Data_Base
 
-![](DB_Image/Table2_driver.png)
+![](DB_Image/Table2_Driver.png)
 
 ### Third Table Data_Base
 
