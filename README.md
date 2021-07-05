@@ -1,13 +1,14 @@
 # Project-1
 
-### First Table Data_Base
+## Currently in this project there are 3 Tables
+### 1. Customer Table Details
 
 ![](DB_Image/Table1_Customer.png)
 
-### Second Table Data_Base
+### 2. Driver Table Details
 
 ![](DB_Image/Table2_Driver.png)
 
-### Third Table Data_Base
+### 3. Booking Table Details
 
 ![](DB_Image/Table3_booking.png)
