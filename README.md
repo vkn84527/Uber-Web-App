@@ -11,4 +11,4 @@
 
 ### 3. Booking Table Details
 
-![](DB_Image/Table3_booking.png)
+![](DB_Image/Table3_Booking.png)
