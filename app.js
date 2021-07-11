@@ -1,22 +1,20 @@
 var express = require("express");
 var bodyParser = require('body-parser');
 var app = express();
-var customer = require('./controllers/customer');
-var driver = require('./controllers/driver');
 
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
-/* route to handle login , logout and registration */
 
-app.post('/customer_register', customer.register);
-app.post('/customer_login', customer.authenticate);
-app.post('/customer_logout', customer.logout);
-
-app.post('/driver_register', driver.register);
-app.post('/driver_login', driver.authenticate);
-app.post('/driver_logout', driver.logout);
+app.get("/", (req, res) => {
+    res.json({ message: "Welcome,Server is working Fine.........  " });
+    
+});
 
 
-app.listen(8000, () => {
-    console.log("server running on port: 8000")
+require("./routes/customer_route")(app);
+require("./routes/driver_route")(app)
+require("./routes/booking_route")(app)
+
+app.listen(4500, () => {
+    console.log("server running on port: 4500")
 });
