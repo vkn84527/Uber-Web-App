@@ -33,22 +33,29 @@ module.exports.login = function (req, res) {
 
 module.exports.register = function (req, res) {
     var today = new Date();
-    var hash = hash_service.hash_password(req.body.driver_password, (err, hash) => {
-        console.log(hash)
+    var hash = hash_service.hash_password(req.body.driver_password)
+    hash.then((hash) => {
         var sql_query = 'INSERT INTO driver (vechile_id,driver_name,driver_phone,driver_email,created_at,updated_at,driver_password)values(?,?,?,?,?,?,?)'
         var values = [req.body.vechile_id, req.body.driver_name, req.body.driver_phone, req.body.driver_email, today, today, hash]
-        var results = execute_query(sql_query, values, (err, results) => {
-            if (err) {
-                return responce.sendResponse(res, 'There are some error with query', status_code.STATUS_CODES.BAD_REQUEST)
-            }
-            else {
-                console.log("Email send on your Mail :)")
-                //sendmail.ab()
-                return responce.sendResponse(res, 'Driver registered sucessfully', status_code.STATUS_CODES.SUCCESS)
-            }
+        var results = execute_query(sql_query, values)
+        results.then((message) => {
+            responce.sendResponse(res, 'Driver registered sucessfully', status_code.STATUS_CODES.SUCCESS)
+            console.log("Driver registered sucessfully.........")
+            console.log("Email send on your Mail :)")
+            //sendmail.ab() 
+        }).catch((message) => {
+            //console.log(message)
+            responce.sendResponse(res, 'There are some error with query', status_code.STATUS_CODES.BAD_REQUEST)
         })
+    }).catch((message) => {
+        responce.sendResponse(res, 'Password hasing Error', status_code.STATUS_CODES.UNAUTHORIZED)
     })
 }
+
+
+
+
+
 
 module.exports.logout = function (req, res) {
     return responce.sendResponse(res, 'Driver successfully logout', status_code.STATUS_CODES.SUCCESS)

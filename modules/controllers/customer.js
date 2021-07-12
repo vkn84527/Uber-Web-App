@@ -10,32 +10,35 @@ var salt = 10
 var secret_key = process.env.SECRET_KEY;
 
 module.exports.register = function (req, res) {
-  
+
   var today = new Date();
   var hash = hash_service.hash_password(req.body.customer_password)
-  hash.then((hash)=>{
-   // console.log(message)
+  hash.then((hash) => {
 
-  var sql_query = 'INSERT INTO customer(customer_name,customer_phone,customer_email,customer_password,created_at,updated_at) values(?,?,?,?,?,?)'
-  var values = [req.body.customer_name, req.body.customer_phone,req.body.customer_email, hash, today, today]
-  const results = execute_query(sql_query, values)
+    var sql_query = 'INSERT INTO customer(customer_name,customer_phone,customer_email,customer_password,created_at,updated_at) values(?,?,?,?,?,?)'
+    var values = [req.body.customer_name, req.body.customer_phone, req.body.customer_email, hash, today, today]
+    const results = execute_query(sql_query, values)
     //console.log(results)
-  results.then((message)=>{responce.sendResponse(res, 'User registered sucessfully', status_code.STATUS_CODES.SUCCESS)
-  }).catch((message)=> {
-    //console.log(message)
-  responce.sendResponse(res, 'There are some error with query', status_code.STATUS_CODES.UNAUTHORIZED)
+    results.then((message) => {
+      responce.sendResponse(res, 'User registered sucessfully', status_code.STATUS_CODES.SUCCESS)
+      console.log("User registered sucessfully.........")
+      console.log("Email send on your Mail :)")
+      //sendmail.ab2() 
+    }).catch((message) => {
+      //console.log(message)
+      responce.sendResponse(res, 'There are some error with query', status_code.STATUS_CODES.UNAUTHORIZED)
+    })
+  }).catch((message) => {
+    responce.sendResponse(res, 'Password hasing Error', status_code.STATUS_CODES.UNAUTHORIZED)
   })
-}).catch((message)=>{console.log("hash pass error")})
-  //console.log(results)
-//})
 }
 
 
 module.exports.login = function (req, res) {
-  try{
-  var sql_query = 'SELECT * FROM customer WHERE customer_email = ?'
-  var values = [req.body.customer_email]
-  var results = execute_query(sql_query, values)
+  try {
+    var sql_query = 'SELECT * FROM customer WHERE customer_email = ?'
+    var values = [req.body.customer_email]
+    var results = execute_query(sql_query, values)
     //console.log(results,results[0].customer_password)
 
     if (results.length === 0) {
@@ -62,11 +65,11 @@ module.exports.login = function (req, res) {
       }
     }
   }
-    catch (error) {
+  catch (error) {
     res.json({
       message: "Some error"
-    }) 
-}
+    })
+  }
 }
 
 
