@@ -96,5 +96,4 @@ module.exports.completed_booking = (req, res) => {
     }).catch((message) => {
         responses.sendResponse(res, "Some Error", constants.STATUS_CODES.NOT_FOUND)
     })
-
 }
