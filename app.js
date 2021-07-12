@@ -9,12 +9,12 @@ app.get("/", (req, res) => {
     res.json({ message: "Welcome,Server is working Fine.........  " });
     
 });
-
+const port = process.env.PORT || 3000
 
 require("./routes/customer_route")(app);
 require("./routes/driver_route")(app)
 require("./routes/booking_route")(app)
 
-app.listen(4500, () => {
-    console.log("server running on port: 4500")
+app.listen(port, () => {
+    console.log("server running on port: ${port}")
 });
