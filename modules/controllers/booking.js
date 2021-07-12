@@ -1,6 +1,6 @@
 const execute_query = require('./db_query').execute_query
-const responses = require('../../modules/common_functions/responses')
-const constants = require('../../modules/constants/constants')
+const responses = require('../common_functions/responses')
+const constants = require('../constants/constants')
 var dateTime = require('node-datetime');
 var dt = dateTime.create();
 dt.format('m/d/Y H:M:S');

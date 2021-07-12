@@ -5,56 +5,76 @@ const status_code = require('../constants/constants')
 const execute_query = require('./db_query').execute_query
 const bcryptjs = require('bcryptjs')
 const hash_service = require('./hashing');
+const jwt = require('jsonwebtoken')
+var salt = 10
+var secret_key = process.env.SECRET_KEY;
 
 module.exports.register = function (req, res) {
+  
   var today = new Date();
-  var hash = hash_service.hash_password(req.body.customer_password, (err, hash) => {
-    //console.log(hash)
-    var sql_query = 'INSERT INTO customer(customer_name,customer_email,customer_password ,customer_phone, created_at ,updated_at ) values(?,?,?,?,?,?)'
-    var values = [req.body.customer_name, req.body.customer_email, hash, req.body.customer_phone, today, today]
+  var hash = hash_service.hash_password(req.body.customer_password)
+  hash.then((hash)=>{
+   // console.log(message)
 
-    const results = execute_query(sql_query, values, (err, results) => {
-      //console.log(err,results)
-      if (err) {
-        return responce.sendResponse(res, 'There are some error with query', status_code.STATUS_CODES.UNAUTHORIZED)
-      }
-      else {
-        console.log("Email send on your Mail :)")
-        //sendmail.ab2()
-        return responce.sendResponse(res, 'User registered sucessfully', status_code.STATUS_CODES.SUCCESS)
-      }
-    })
-  });
+  var sql_query = 'INSERT INTO customer(customer_name,customer_phone,customer_email,customer_password,created_at,updated_at) values(?,?,?,?,?,?)'
+  var values = [req.body.customer_name, req.body.customer_phone,req.body.customer_email, hash, today, today]
+  const results = execute_query(sql_query, values)
+    //console.log(results)
+  results.then((message)=>{responce.sendResponse(res, 'User registered sucessfully', status_code.STATUS_CODES.SUCCESS)
+  }).catch((message)=> {
+    //console.log(message)
+  responce.sendResponse(res, 'There are some error with query', status_code.STATUS_CODES.UNAUTHORIZED)
+  })
+}).catch((message)=>{console.log("hash pass error")})
+  //console.log(results)
+//})
 }
 
-module.exports.login = function (req, res) {
 
+module.exports.login = function (req, res) {
+  try{
   var sql_query = 'SELECT * FROM customer WHERE customer_email = ?'
   var values = [req.body.customer_email]
-  var results = execute_query(sql_query, values, (err, results) => {
+  var results = execute_query(sql_query, values)
     //console.log(results,results[0].customer_password)
 
     if (results.length === 0) {
       return responce.sendResponse(res, "Email Not Registered", status_code.STATUS_CODES.UNAUTHORIZED);
     }
     else {
-      var check_pass = hash_service.compare_password(req.body.customer_password, results[0].customer_password, (err, check_pass) => {
-        if (check_pass) {
-          return responce.sendResponse(res, 'LogIn ScussesFull', status_code.STATUS_CODES.SUCCESS);
-        }
-        else {
-          return responce.sendResponse(res, "Wrong Password", status_code.STATUS_CODES.BAD_REQUEST);
-        }
-      })
-    }
+      var result = hash_service.compare_password(req.body.customer_password, results[0].password);
+      if (result) {
+        const token = jwt.sign({
+          customer_email: req.body.customer_email,
+          passengerID: results[0].passengerID
+        },
+          secret_key);
 
-  })
+        return res.status(200).json({
+          message: 'Auth Successful',
+          token: token,
+          customer_email: req.body.customer_email,
+          passengerID: results[0].passengerID
+        });
+      }
+      else {
+        return responce.sendResponse(res, "Invalid password", status_code.STATUS_CODES.UNAUTHORIZED);
+      }
+    }
+  }
+    catch (error) {
+    res.json({
+      message: "Some error"
+    }) 
+}
 }
 
 
 module.exports.logout = function (req, res) {
   return responce.sendResponse(res, 'successfully logout', status_code.STATUS_CODES.SUCCESS)
 }
+
+
 
 // module.exports.login = function (req, res) {
 
