@@ -9,7 +9,7 @@ app.get("/", (req, res) => {
     res.json({ message: "Welcome,Server is working Fine.........  " });
     
 });
-const port = process.env.PORT || 3000
+const port = process.env.PORT || 300
 
 require("./routes/customer_route")(app);
 require("./routes/driver_route")(app)
