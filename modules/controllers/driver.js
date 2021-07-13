@@ -30,24 +30,37 @@ module.exports.login = function (req, res) {
 
 module.exports.register = function (req, res) {
     var today = new Date();
-    var hash = hash_service.hash_password(req.body.driver_password)
-    hash.then((hash) => {
-        var sql_query = 'INSERT INTO driver (vechile_id,driver_name,driver_phone,driver_email,created_at,updated_at,driver_password)values(?,?,?,?,?,?,?)'
-        var values = [req.body.vechile_id, req.body.driver_name, req.body.driver_phone, req.body.driver_email, today, today, hash]
-        var results = execute_query(sql_query, values)
-        results.then((message) => {
-            responce.sendResponse(res, 'Driver registered sucessfully', status_code.STATUS_CODES.SUCCESS)
-            console.log("Driver registered sucessfully.........")
-            console.log("Email send on your Mail :)")
-            //sendmail.ab() 
-        }).catch((message) => {
-            //console.log(message)
-            responce.sendResponse(res, 'There are some error with query', status_code.STATUS_CODES.BAD_REQUEST)
-        })
+    var sql_query = 'SELECT * FROM driver WHERE driver_email = ?';
+    var values = [req.body.driver_email]
+    var results = execute_query(sql_query, values)
+    results.then((message) => {
+        if (message.length !== 0) {
+            return responce.sendResponse(res, "Email already Registered", status_code.STATUS_CODES.UNAUTHORIZED);
+        } else {
+            var hash = hash_service.hash_password(req.body.driver_password)
+            hash.then((hash) => {
+                var sql_query = 'INSERT INTO driver (vechile_id,driver_name,driver_phone,driver_email,created_at,updated_at,driver_password)values(?,?,?,?,?,?,?)'
+                var values = [req.body.vechile_id, req.body.driver_name, req.body.driver_phone, req.body.driver_email, today, today, hash]
+                var results = execute_query(sql_query, values)
+                results.then((message) => {
+                    responce.sendResponse(res, 'Driver registered sucessfully', status_code.STATUS_CODES.SUCCESS)
+                    console.log("Driver registered sucessfully.........")
+                    console.log("Email send on your Mail :)")
+                    //sendmail.ab() 
+                }).catch((message) => {
+                    //console.log(message)
+                    responce.sendResponse(res, 'There are some error with query', status_code.STATUS_CODES.BAD_REQUEST)
+                })
+            }).catch((message) => {
+                responce.sendResponse(res, 'Password hasing Error', status_code.STATUS_CODES.UNAUTHORIZED)
+            })
+        }
     }).catch((message) => {
-        responce.sendResponse(res, 'Password hasing Error', status_code.STATUS_CODES.UNAUTHORIZED)
+        //console.log(message)
+        responce.sendResponse(res, 'There are some error with query', status_code.STATUS_CODES.BAD_REQUEST)
     })
 }
+
 
 
 module.exports.logout = function (req, res) {

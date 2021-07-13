@@ -46,8 +46,8 @@ module.exports.check_bookings = function (req, res) {
 module.exports.ride_booking = function (req, res) {
     //var booking_date_time = new Date(dt.now())
     var current_time = new Date(dt.now())
-    var sql_query = 'insert into booking (customer_id ,booking_date_time,source_ride,destination_ride,status,driver_id)values(?, ?, ?, ?, ?, ?)';
-    var values = [req.body.customer_id, current_time, req.body.source_ride, req.body.destination_ride, "booked", req.body.driver_id];
+    var sql_query = 'insert into booking (booking_date_time,source_ride,destination_ride,status,driver_id)values( ?, ?, ?, ?, ?)';
+    var values = [ current_time, req.body.source_ride, req.body.destination_ride, "booked", req.body.driver_id];
 
     var results = execute_query(sql_query, values)
     results.then((message) => {

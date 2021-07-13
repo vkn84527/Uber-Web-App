@@ -12,6 +12,14 @@ var secret_key = process.env.secret_key
 module.exports.register = function (req, res) {
 
   var today = new Date();
+  var sql_query = 'SELECT * FROM customer WHERE customer_email = ?'
+  var values = [req.body.customer_email]
+  var results = execute_query(sql_query, values)
+  results.then((mess)=>{
+    if (mess.length !== 0) {
+      return responce.sendResponse(res, "Email already Registered", status_code.STATUS_CODES.BAD_REQUEST);
+    }
+    else {
   var hash = hash_service.hash_password(req.body.customer_password)
   hash.then((hash) => {
 
@@ -30,6 +38,10 @@ module.exports.register = function (req, res) {
     })
   }).catch((message) => {
     responce.sendResponse(res, 'Password hasing Error', status_code.STATUS_CODES.UNAUTHORIZED)
+  })
+}
+  }).catch((mess)=>{
+    responce.sendResponse(res, 'There are some error with query', status_code.STATUS_CODES.UNAUTHORIZED)
   })
 }
 
