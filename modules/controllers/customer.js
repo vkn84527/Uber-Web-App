@@ -15,32 +15,32 @@ module.exports.register = function (req, res) {
   var sql_query = 'SELECT * FROM customer WHERE customer_email = ?'
   var values = [req.body.customer_email]
   var results = execute_query(sql_query, values)
-  results.then((mess)=>{
+  results.then((mess) => {
     if (mess.length !== 0) {
       return responce.sendResponse(res, "Email already Registered", status_code.STATUS_CODES.BAD_REQUEST);
     }
     else {
-  var hash = hash_service.hash_password(req.body.customer_password)
-  hash.then((hash) => {
+      var hash = hash_service.hash_password(req.body.customer_password)
+      hash.then((hash) => {
 
-    var sql_query = 'INSERT INTO customer(customer_name,customer_phone,customer_email,customer_password,created_at,updated_at) values(?,?,?,?,?,?)'
-    var values = [req.body.customer_name, req.body.customer_phone, req.body.customer_email, hash, today, today]
-    const results = execute_query(sql_query, values)
-    //console.log(results)
-    results.then((message) => {
-      responce.sendResponse(res, 'User registered sucessfully', status_code.STATUS_CODES.SUCCESS)
-      console.log("User registered sucessfully.........")
-      console.log("Email send on your Mail :)")
-      //sendmail.ab2() 
-    }).catch((message) => {
-      //console.log(message)
-      responce.sendResponse(res, 'There are some error with query', status_code.STATUS_CODES.UNAUTHORIZED)
-    })
-  }).catch((message) => {
-    responce.sendResponse(res, 'Password hasing Error', status_code.STATUS_CODES.UNAUTHORIZED)
-  })
-}
-  }).catch((mess)=>{
+        var sql_query = 'INSERT INTO customer(customer_name,customer_phone,customer_email,customer_password,created_at,updated_at) values(?,?,?,?,?,?)'
+        var values = [req.body.customer_name, req.body.customer_phone, req.body.customer_email, hash, today, today]
+        const results = execute_query(sql_query, values)
+        //console.log(results)
+        results.then((message) => {
+          responce.sendResponse(res, 'User registered sucessfully', status_code.STATUS_CODES.SUCCESS)
+          console.log("User registered sucessfully.........")
+          console.log("Email send on your Mail :)")
+          //sendmail.ab2() 
+        }).catch((message) => {
+          //console.log(message)
+          responce.sendResponse(res, 'There are some error with query', status_code.STATUS_CODES.UNAUTHORIZED)
+        })
+      }).catch((message) => {
+        responce.sendResponse(res, 'Password hasing Error', status_code.STATUS_CODES.UNAUTHORIZED)
+      })
+    }
+  }).catch((mess) => {
     responce.sendResponse(res, 'There are some error with query', status_code.STATUS_CODES.UNAUTHORIZED)
   })
 }
@@ -49,9 +49,9 @@ module.exports.register = function (req, res) {
 module.exports.login = function (req, res) {
   var sql_query = 'SELECT * FROM customer WHERE customer_email = ?'
   var values = [req.body.customer_email]
-  const user = {customer_email: req.body.customer_email}
   var results = execute_query(sql_query, values)
   results.then((message) => {
+    const user = { customer_email: req.body.customer_email, customer_id: message[0].customer_id }
     //console.log(message)
     if (message.length === 0) {
       return responce.sendResponse(res, "Email Not Registered", status_code.STATUS_CODES.BAD_REQUEST);
@@ -60,14 +60,14 @@ module.exports.login = function (req, res) {
       //console.log( message[0].customer_password)
       var result = hash_service.compare_password(req.body.customer_password, message[0].customer_password);
       result.then((msg) => {
-        //console.log(msg)
         if (msg) {
           const token = jwt.sign(user, secret_key);
           //res.json({ access_token: token })
           return res.status(200).json({
             Message: 'Auth Successful',
             Access_token: token,
-            Customer_Email: req.body.customer_email
+            Customer_Email: req.body.customer_email,
+            customer_id: message[0].customer_id
           });
         }
       }).catch((msg) => {
