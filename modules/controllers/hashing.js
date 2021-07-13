@@ -14,15 +14,12 @@ module.exports.hash_password = (customer_password) => {
         })
     })
 }
-
 module.exports.compare_password = (customer_password, password_in_database) => {
     return new Promise((resolve, reject) => {
         bcryptjs.compare(customer_password, password_in_database, (err, result) => {
+            //console.log(result)
             if (result) {
                 resolve(true);
-            }
-            else if (!result) {
-                resolve(false);
             }
             else {
                 reject(err)
@@ -30,4 +27,24 @@ module.exports.compare_password = (customer_password, password_in_database) => {
         })
     })
 }
+
+
+
+
+
+// module.exports.compare_password = (customer_password, password_in_database) => {
+//     return new Promise((resolve, reject) => {
+//         bcryptjs.compare(customer_password, password_in_database, (err, result) => {
+//             if (result) {
+//                 resolve(true);
+//             }
+//             else if (!result) {
+//                 resolve(false);
+//             }
+//             else {
+//                 reject(err)
+//             }
+//         })
+//     })
+// }
 

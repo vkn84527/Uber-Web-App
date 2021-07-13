@@ -35,41 +35,28 @@ module.exports.register = function (req, res) {
 
 
 module.exports.login = function (req, res) {
-  try {
-    var sql_query = 'SELECT * FROM customer WHERE customer_email = ?'
-    var values = [req.body.customer_email]
-    var results = execute_query(sql_query, values)
-    //console.log(results,results[0].customer_password)
-
-    if (results.length === 0) {
-      return responce.sendResponse(res, "Email Not Registered", status_code.STATUS_CODES.UNAUTHORIZED);
+  var sql_query = 'SELECT * FROM customer WHERE customer_email = ?'
+  var values = [req.body.customer_email]
+  var results = execute_query(sql_query, values)
+  results.then((message) => {
+    //console.log(message)
+    if (message.length === 0) {
+      return responce.sendResponse(res, "Email Not Registered", status_code.STATUS_CODES.BAD_REQUEST);
     }
     else {
-      var result = hash_service.compare_password(req.body.customer_password, results[0].password);
-      if (result) {
-        const token = jwt.sign({
-          customer_email: req.body.customer_email,
-          passengerID: results[0].passengerID
-        },
-          secret_key);
-
-        return res.status(200).json({
-          message: 'Auth Successful',
-          token: token,
-          customer_email: req.body.customer_email,
-          passengerID: results[0].passengerID
-        });
-      }
-      else {
-        return responce.sendResponse(res, "Invalid password", status_code.STATUS_CODES.UNAUTHORIZED);
-      }
+      //console.log( message[0].customer_password)
+      var result = hash_service.compare_password(req.body.customer_password, message[0].customer_password);
+      //console.log(result)
+      result.then((message) => {
+        responce.sendResponse(res, "LogIn SuccessFully", status_code.STATUS_CODES.SUCCESS);
+      }).catch((message) => {
+        responce.sendResponse(res, "Invalid password", status_code.STATUS_CODES.UNAUTHORIZED);
+      })
     }
-  }
-  catch (error) {
-    res.json({
-      message: "Some error"
+  })
+    .catch((message) => {
+      responce.sendResponse(res, "Some Error", status_code.STATUS_CODES.BAD_REQUEST);
     })
-  }
 }
 
 
@@ -115,18 +102,6 @@ module.exports.logout = function (req, res) {
 //     }
 //   })
 // }
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

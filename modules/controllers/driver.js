@@ -9,25 +9,22 @@ const hash_service = require('./hashing');
 module.exports.login = function (req, res) {
     var sql_query = 'SELECT * FROM driver WHERE driver_email = ?';
     var values = [req.body.driver_email]
-    var results = execute_query(sql_query, values, (err, results) => {
-        if (err) {
-            return responce.sendResponse(res, 'There are some error with query', status_code.STATUS_CODES.UNAUTHORIZED)
+    var results = execute_query(sql_query, values)
+    results.then((message) => {
+        if (results.length === 0) {
+            return responce.sendResponse(res, "Email Not Registered", status_code.STATUS_CODES.UNAUTHORIZED);
         }
         else {
-            if (results.length === 0) {
-                return responce.sendResponse(res, "Email Not Registered", status_code.STATUS_CODES.UNAUTHORIZED);
-            }
-            else {
-                var check_pass = hash_service.compare_password(req.body.driver_password, results[0].driver_password, (err, check_pass) => {
-                    if (check_pass) {
-                        return responce.sendResponse(res, 'LogIn ScussesFull', status_code.STATUS_CODES.SUCCESS);
-                    }
-                    else {
-                        return responce.sendResponse(res, "Wrong Password", status_code.STATUS_CODES.BAD_REQUEST);
-                    }
-                })
-            }
+            var check_pass = hash_service.compare_password(req.body.driver_password, results[0].driver_password)
+            check_pass.then((message) => {
+                return responce.sendResponse(res, 'LogIn ScussesFull', status_code.STATUS_CODES.SUCCESS);
+            }).catch((message) => {
+
+                return responce.sendResponse(res, "Wrong Password", status_code.STATUS_CODES.BAD_REQUEST);
+            })
         }
+    }).catch((message) => {
+        responce.sendResponse(res, 'There are some error with query', status_code.STATUS_CODES.UNAUTHORIZED)
     })
 }
 
@@ -51,10 +48,6 @@ module.exports.register = function (req, res) {
         responce.sendResponse(res, 'Password hasing Error', status_code.STATUS_CODES.UNAUTHORIZED)
     })
 }
-
-
-
-
 
 
 module.exports.logout = function (req, res) {
