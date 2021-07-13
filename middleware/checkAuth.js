@@ -8,7 +8,6 @@ module.exports = (req, res, next) => {
         // How token can be managed to prevent leakage?
         var authHeader = req.headers['authorization']
         const token = authHeader && authHeader.split(' ')[1]
-        const
         if(token ==null) return res.status(401).json({
             message: 'Auth Failed'
         });
