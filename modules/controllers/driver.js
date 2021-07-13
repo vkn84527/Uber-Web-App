@@ -11,11 +11,11 @@ module.exports.login = function (req, res) {
     var values = [req.body.driver_email]
     var results = execute_query(sql_query, values)
     results.then((message) => {
-        if (results.length === 0) {
+        if (message.length === 0) {
             return responce.sendResponse(res, "Email Not Registered", status_code.STATUS_CODES.UNAUTHORIZED);
         }
         else {
-            var check_pass = hash_service.compare_password(req.body.driver_password, results[0].driver_password)
+            var check_pass = hash_service.compare_password(req.body.driver_password, message[0].driver_password)
             check_pass.then((message) => {
                 return responce.sendResponse(res, 'LogIn ScussesFull', status_code.STATUS_CODES.SUCCESS);
             }).catch((message) => {
