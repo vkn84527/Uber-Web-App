@@ -6,6 +6,7 @@ const execute_query = require('./db_query').execute_query
 const bcryptjs = require('bcryptjs')
 const hash_service = require('../common_functions/hashing');
 const jwt = require('jsonwebtoken')
+const checkAuth = require('../../middleware/checkAuth')
 var salt = 10
 var secret_key = process.env.secret_key
 
@@ -51,25 +52,26 @@ module.exports.login = function (req, res) {
   var values = [req.body.customer_email]
   var results = execute_query(sql_query, values)
   results.then((message) => {
-    const user = { customer_email: req.body.customer_email, customer_id: message[0].customer_id }
     //console.log(message)
     if (message.length === 0) {
       return responce.sendResponse(res, "Email Not Registered", status_code.STATUS_CODES.BAD_REQUEST);
     }
     else {
+      const user = { customer_email: req.body.customer_email, customer_id: message[0].customer_id }
       //console.log( message[0].customer_password)
       var result = hash_service.compare_password(req.body.customer_password, message[0].customer_password);
       result.then((msg) => {
         if (msg) {
-          const token = jwt.sign(user, secret_key);
-          //res.json({ access_token: token })
+          token=jwt.sign(user,secret_key)
+          //console.log(token)
+         // {console.log(":)")}
           return res.status(200).json({
-            Message: 'Auth Successful',
-            Access_token: token,
-            Customer_Email: req.body.customer_email,
-            customer_id: message[0].customer_id
+              message: 'Auth Successful',
+              token: token,
+              customer_email: req.body.customer_email,
+              customer_id: message[0].customer_id
           });
-        }
+      }
       }).catch((msg) => {
         return responce.sendResponse(res, "Invalid password", status_code.STATUS_CODES.UNAUTHORIZED);
       })
@@ -83,6 +85,49 @@ module.exports.login = function (req, res) {
 module.exports.logout = function (req, res) {
   return responce.sendResponse(res, 'successfully logout', status_code.STATUS_CODES.SUCCESS)
 }
+
+
+
+
+
+
+
+// module.exports.login = function (req, res) {
+//   var sql_query = 'SELECT * FROM customer WHERE customer_email = ?'
+//   var values = [req.body.customer_email]
+//   var results = execute_query(sql_query, values)
+//   results.then((message) => {
+//     const user = { customer_email: req.body.customer_email, customer_id: message[0].customer_id }
+//     //console.log(message)
+//     if (message.length === 0) {
+//       return responce.sendResponse(res, "Email Not Registered", status_code.STATUS_CODES.BAD_REQUEST);
+//     }
+//     else {
+//       //console.log( message[0].customer_password)
+//       var result = hash_service.compare_password(req.body.customer_password, message[0].customer_password);
+//       result.then((msg) => {
+//         if (msg) {
+//           const token = jwt.sign(user, secret_key);
+//           //res.json({ access_token: token })
+//           return res.status(200).json({
+//             Message: 'Auth Successful',
+//             Access_token: token,
+//             Customer_Email: req.body.customer_email,
+//             customer_id: message[0].customer_id
+//           });
+//         }
+//       }).catch((msg) => {
+//         return responce.sendResponse(res, "Invalid password", status_code.STATUS_CODES.UNAUTHORIZED);
+//       })
+//     }
+//   }).catch((message) => {
+//     responce.sendResponse(res, "Some Error", status_code.STATUS_CODES.BAD_REQUEST);
+//   })
+// }
+
+
+
+
 
 
 

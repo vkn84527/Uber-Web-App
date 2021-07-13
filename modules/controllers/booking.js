@@ -5,7 +5,6 @@ var dateTime = require('node-datetime');
 var dt = dateTime.create();
 dt.format('m/d/Y H:M:S');
 
-
 module.exports.find_drivers = function (req, res) {
     var sql_query = 'select driver_id, vechile_id,driver_name,driver_phone from driver where driver_id not in \
         (select driver_id from booking where status="booked")'
