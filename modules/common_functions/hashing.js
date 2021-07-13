@@ -5,7 +5,6 @@ var salt = 10;
 var secret_key = process.env.SECRET_KEY;
 
 
-
 module.exports.hash_password = (customer_password) => {
     return new Promise((resolve, reject) => {
         bcryptjs.hash(customer_password, salt, (err, hash) => {

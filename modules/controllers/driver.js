@@ -4,7 +4,7 @@ const responce = require('../common_functions/responses')
 const status_code = require('../constants/constants')
 const execute_query = require('./db_query').execute_query
 const bcryptjs = require('bcryptjs')
-const hash_service = require('./hashing');
+const hash_service = require('../common_functions/hashing');
 
 module.exports.login = function (req, res) {
     var sql_query = 'SELECT * FROM driver WHERE driver_email = ?';
