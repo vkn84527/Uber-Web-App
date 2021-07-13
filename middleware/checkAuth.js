@@ -5,16 +5,17 @@ var secret_key = process.env.SECRET_KEY;
 
 module.exports = (req, res, next) => {
 
-    try {
         // How token can be managed to prevent leakage?
-        var token = req.headers.authorization;
-        const decoded = jwt.verify(token, secret_key);
-        req.userData = decoded;
-        req.passengerID = req.userData.passengerID
-        next();
-    } catch (error) {
-        return res.status(401).json({
+        var authHeader = req.headers['authorization']
+        const token = authHeader && authHeader.split(' ')[1]
+        const
+        if(token ==null) return res.status(401).json({
             message: 'Auth Failed'
         });
-    }
+
+        jwt.verify(token, secret_key,(err,user)=>{
+         if(err) return res.status(403)
+        req.user = user
+        next();
+    })
 };

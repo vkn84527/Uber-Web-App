@@ -7,7 +7,7 @@ const bcryptjs = require('bcryptjs')
 const hash_service = require('./hashing');
 const jwt = require('jsonwebtoken')
 var salt = 10
-var secret_key = process.env.SECRET_KEY;
+var secret_key = process.env.secret_key
 
 module.exports.register = function (req, res) {
 
@@ -37,6 +37,7 @@ module.exports.register = function (req, res) {
 module.exports.login = function (req, res) {
   var sql_query = 'SELECT * FROM customer WHERE customer_email = ?'
   var values = [req.body.customer_email]
+  const user = {customer_email: req.body.customer_email}
   var results = execute_query(sql_query, values)
   results.then((message) => {
     //console.log(message)
@@ -46,17 +47,24 @@ module.exports.login = function (req, res) {
     else {
       //console.log( message[0].customer_password)
       var result = hash_service.compare_password(req.body.customer_password, message[0].customer_password);
-      //console.log(result)
-      result.then((message) => {
-        responce.sendResponse(res, "LogIn SuccessFully", status_code.STATUS_CODES.SUCCESS);
-      }).catch((message) => {
-        responce.sendResponse(res, "Invalid password", status_code.STATUS_CODES.UNAUTHORIZED);
+      result.then((msg) => {
+        //console.log(msg)
+        if (msg) {
+          const token = jwt.sign(user, secret_key);
+          //res.json({ access_token: token })
+          return res.status(200).json({
+            Message: 'Auth Successful',
+            Access_token: token,
+            Customer_Email: req.body.customer_email
+          });
+        }
+      }).catch((msg) => {
+        return responce.sendResponse(res, "Invalid password", status_code.STATUS_CODES.UNAUTHORIZED);
       })
     }
+  }).catch((message) => {
+    responce.sendResponse(res, "Some Error", status_code.STATUS_CODES.BAD_REQUEST);
   })
-    .catch((message) => {
-      responce.sendResponse(res, "Some Error", status_code.STATUS_CODES.BAD_REQUEST);
-    })
 }
 
 
@@ -67,76 +75,30 @@ module.exports.logout = function (req, res) {
 
 
 // module.exports.login = function (req, res) {
-
-//   var sql_query = 'SELECT * FROM customer WHERE customer_email = ?'
-//   var values = [req.body.customer_email]
-//   var results = execute_query(sql_query, values, (err, results) => {
-
-//     if (results.length === 0) {
-//       return response.sendResponse(res, "Wrong Credentials", status_code.STATUS_CODES.UNAUTHORIZED);
-//     }
-//     else {
-//       var result = hash_service.compare_password(req.body.customer_password, results[0].customer_password);
-//       if (result) {
-//         const token = jwt.sign({
-//           customer_email: req.body.customer_email,
-//           customer_password: results[0].customer_password
-//         },
-//           secret_key);
-//         return res.status(200).json({
-//           message: 'Auth Successful',
-//           token: token,
-//           customer_email: req.body.customer_email,
-//           customer_password: results[0].customer_password
-//         });
-//       }
-//       if (err) {
-//         res.json({
-//           message: "Some error"
-//         })
-//       }
-//       else {
-//         return responce.sendResponse(res, "Invalid customer_password", status_code.STATUS_CODES.UNAUTHORIZED);
-//       }
-
-//     }
-//   })
-// }
-
-
-
-
-
-
-// module.exports.login = function (req, res,error) {
-
 //   var sql_query = 'SELECT * FROM customer WHERE customer_email = ?'
 //   var values = [req.body.customer_email]
 //   var results = execute_query(sql_query, values)
-
-//   // var customer_email = req.body.customer_email;
-//   //var customer_password = req.body.customer_password;
-
-//   // connection.query('SELECT * FROM customer WHERE customer_email = ?', [customer_email], function (error, results, fields) {
-//     if  (results.error) {
-//       return responce.sendResponse(res,'There are some error with query',status_code.STATUS_CODES.UNAUTHORIZED)
-//     } 
-//     else {
-//       if (results.length > 0) {
-//         if (customer_password == results[0].customer_password) {
-//           return responce.sendResponse(res,'successfully login',status_code.STATUS_CODES.SUCCESS)
-//         } 
-//         else {
-//           return responce.sendResponse(res,"Email or customer_password does not match",status_code.STATUS_CODES.BAD_REQUEST)
-//         }
-//       }
-//       else 
-//       {
-//         return responce.sendResponse(res,"Email does not exits",status_code.STATUS_CODES.NOT_FOUND)
-//       }
+//   results.then((message) => {
+//     //console.log(message)
+//     if (message.length === 0) {
+//       return responce.sendResponse(res, "Email Not Registered", status_code.STATUS_CODES.BAD_REQUEST);
 //     }
-//   //});
+//     else {
+//       //console.log( message[0].customer_password)
+//       var result = hash_service.compare_password(req.body.customer_password, message[0].customer_password);
+//       //console.log(result)
+//       result.then((message) => {
+//         responce.sendResponse(res, "LogIn SuccessFully", status_code.STATUS_CODES.SUCCESS);
+//       }).catch((message) => {
+//         responce.sendResponse(res, "Invalid password", status_code.STATUS_CODES.UNAUTHORIZED);
+//       })
+//     }
+//   })
+//     .catch((message) => {
+//       responce.sendResponse(res, "Some Error", status_code.STATUS_CODES.BAD_REQUEST);
+//     })
 // }
+
 
 // module.exports.register = function (req, res) {
 //   var today = new Date();
