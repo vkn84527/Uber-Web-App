@@ -1,10 +1,10 @@
-var connection = require('../../database/db_connection');
 const sendmail = require('../service/driver_mail')
 const responce = require('../common_functions/responses')
 const status_code = require('../constants/constants')
 const execute_query = require('./db_query').execute_query
-const bcryptjs = require('bcryptjs')
 const hash_service = require('../common_functions/hashing');
+const jwt = require('jsonwebtoken')
+var secret_key = process.env.secret_key
 
 module.exports.login = function (req, res) {
     var sql_query = 'SELECT * FROM driver WHERE driver_email = ?';
@@ -15,9 +15,19 @@ module.exports.login = function (req, res) {
             return responce.sendResponse(res, "Email Not Registered", status_code.STATUS_CODES.UNAUTHORIZED);
         }
         else {
+            const user = { driver_email: req.body.driver_email, driver_id: message.insertId }
             var check_pass = hash_service.compare_password(req.body.driver_password, message[0].driver_password)
             check_pass.then((message) => {
-                return responce.sendResponse(res, 'LogIn ScussesFull', status_code.STATUS_CODES.SUCCESS);
+                token = jwt.sign(user, secret_key)
+                //console.log(token)
+                return res.status(200).json({
+                    message: 'Auth Successful',
+                    token: token,
+                    driver_email: req.body.driver_email,
+                    driver_id: message.insertId,
+
+                });
+                // return responce.sendResponse(res, 'LogIn ScussesFull', status_code.STATUS_CODES.SUCCESS);
             }).catch((message) => {
 
                 return responce.sendResponse(res, "Wrong Password", status_code.STATUS_CODES.BAD_REQUEST);
@@ -37,18 +47,32 @@ module.exports.register = function (req, res) {
         if (message.length !== 0) {
             return responce.sendResponse(res, "Email already Registered", status_code.STATUS_CODES.UNAUTHORIZED);
         } else {
+
             var hash = hash_service.hash_password(req.body.driver_password)
             hash.then((hash) => {
+
                 var sql_query = 'INSERT INTO driver (vechile_id,driver_name,driver_phone,driver_email,created_at,updated_at,driver_password)values(?,?,?,?,?,?,?)'
                 var values = [req.body.vechile_id, req.body.driver_name, req.body.driver_phone, req.body.driver_email, today, today, hash]
                 var results = execute_query(sql_query, values)
+
                 results.then((message) => {
-                    responce.sendResponse(res, 'Driver registered sucessfully', status_code.STATUS_CODES.SUCCESS)
+
                     console.log("Driver registered sucessfully.........")
                     console.log("Email send on your Mail :)")
-                    //sendmail.ab() 
+                    //sendmail.ab()
+                    const user = { driver_email: req.body.driver_email, driver_id: message.insertId }
+                    token = jwt.sign(user, secret_key)
+                    console.log(token)
+                    return res.status(200).json({
+                        message: 'Auth Successful',
+                        token: token,
+                        driver_email: req.body.driver_email,
+                        driver_id: message.insertId,
+
+                    })
+
                 }).catch((message) => {
-                    //console.log(message)
+                    console.log(message)
                     responce.sendResponse(res, 'There are some error with query', status_code.STATUS_CODES.BAD_REQUEST)
                 })
             }).catch((message) => {

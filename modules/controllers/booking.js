@@ -34,7 +34,7 @@ module.exports.check_bookings = function (req, res) {
         if (message.length !== 0) {
             responses.sendResponse(res, "You have already booked a booking", constants.STATUS_CODES.SUCCESS)
         } else {
-            responses.sendResponse(res, "Your Booking ID is Not match")
+            responses.sendResponse(res, "Your Booking ID is Not match", constants.STATUS_CODES.NOT_FOUND)
         }
     }).catch((message) => {
         responses.sendResponse(res, "Some Erorr", constants.STATUS_CODES.NOT_FOUND)
@@ -50,18 +50,18 @@ module.exports.ride_booking = function (req, res) {
 
     var sal_query1 = 'select * from booking where status ="booked" and driver_id=?'
     var values1 = [driver_id]
-    var result1 = execute_query(sal_query1,values1)
+    var result1 = execute_query(sal_query1, values1)
     result1.then((mess) => {
         if (mess.length !== 0) {
-            responses.sendResponse(res, `Driver_ID: ${driver_id} is busy with Customer_Id: ${customer_id}`, constants.STATUS_CODES.SUCCESS)
+            responses.sendResponse(res, 'This driver is not available', constants.STATUS_CODES.SUCCESS)
         } else {
             var sal_query2 = 'select * from booking where status ="booked" and customer_id=?'
             var values2 = [customer_id]
-            var result2 = execute_query(sal_query2,values2)
+            var result2 = execute_query(sal_query2, values2)
             result2.then((msg) => {
                 //console.log(msg)
                 if (msg.length === 0) {
-                    responses.sendResponse(res, `Customer_Id: ${customer_id} is busy with Driver_ID: ${driver_id}`, constants.STATUS_CODES.SUCCESS)
+                    responses.sendResponse(res, 'Customer is already booked', constants.STATUS_CODES.SUCCESS)
                 } else {
 
                     var sql_query = 'insert into booking (customer_id ,booking_date_time,source_ride,destination_ride,status,driver_id)values(?, ?, ?, ?, ?, ?)';
@@ -92,11 +92,11 @@ module.exports.ride_booking = function (req, res) {
 module.exports.cancel_booking = (req, res) => {
 
     const booking_id = req.body.booking_id
-    var sql_query = 'update booking set status="cancelled" where booking_id=?'
+    var sql_query = 'update booking set status="cancelled" where booking_id=? and status="booked"'
     var values = [booking_id]
     let results = execute_query(sql_query, values)
     results.then((message) => {
-        //console.log(message)
+        console.log(message)
         if (message.message[27] === '0') {
             responses.sendResponse(res, "Alredy calcelled or Booking_Id is not Valid", constants.STATUS_CODES.SUCCESS)
         } else {

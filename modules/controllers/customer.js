@@ -1,9 +1,7 @@
-var connection = require('../../database/db_connection');
 const sendmail = require('../service/customer_mail')
 const responce = require('../common_functions/responses')
 const status_code = require('../constants/constants')
 const execute_query = require('./db_query').execute_query
-const bcryptjs = require('bcryptjs')
 const hash_service = require('../common_functions/hashing');
 const jwt = require('jsonwebtoken')
 const checkAuth = require('../../middleware/checkAuth')
@@ -46,7 +44,7 @@ module.exports.register = function (req, res) {
 
         }).catch((message) => {
           //console.log(message)
-          responce.sendResponse(res, '{Please Enter all Required Filed', status_code.STATUS_CODES.UNAUTHORIZED)
+          responce.sendResponse(res, 'Please Enter all Required Filed', status_code.STATUS_CODES.UNAUTHORIZED)
         })
       }).catch((message) => {
         responce.sendResponse(res, 'Password hasing Error', status_code.STATUS_CODES.UNAUTHORIZED)

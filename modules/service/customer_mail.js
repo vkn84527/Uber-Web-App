@@ -1,8 +1,7 @@
 //var customeremail= require('../controllers/customer')
 var customeremail= require('../controllers/customer')
-var connection = require('../../database/db_connection');
-
 var nodemailer = require('nodemailer');
+
 var transporter = nodemailer.createTransport({
   service: 'gmail',
   auth: {
