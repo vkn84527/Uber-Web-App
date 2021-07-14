@@ -10,6 +10,8 @@ const checkAuth = require('../../middleware/checkAuth')
 var salt = 10
 var secret_key = process.env.secret_key
 
+
+
 module.exports.register = function (req, res) {
 
   var today = new Date();
@@ -29,10 +31,19 @@ module.exports.register = function (req, res) {
         const results = execute_query(sql_query, values)
         //console.log(results)
         results.then((message) => {
-          responce.sendResponse(res, 'User registered sucessfully', status_code.STATUS_CODES.SUCCESS)
           console.log("User registered sucessfully.........")
           console.log("Email send on your Mail :)")
           //sendmail.ab2() 
+
+          const user = { customer_email: req.body.customer_email, customer_id: message.insertId }
+          token = jwt.sign(user, secret_key)
+          return res.status(200).json({
+            message: 'User registered sucessfully',
+            token: token,
+            customer_email: req.body.customer_email,
+            customer_id: message.insertId,
+          });
+
         }).catch((message) => {
           //console.log(message)
           responce.sendResponse(res, '{Please Enter all Required Filed', status_code.STATUS_CODES.UNAUTHORIZED)
@@ -45,7 +56,6 @@ module.exports.register = function (req, res) {
     responce.sendResponse(res, 'There are some error with query', status_code.STATUS_CODES.UNAUTHORIZED)
   })
 }
-
 
 module.exports.login = function (req, res) {
   var sql_query = 'SELECT * FROM customer WHERE customer_email = ?'
