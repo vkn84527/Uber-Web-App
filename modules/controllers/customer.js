@@ -35,7 +35,7 @@ module.exports.register = function (req, res) {
           //sendmail.ab2() 
         }).catch((message) => {
           //console.log(message)
-          responce.sendResponse(res, 'There are some error with query', status_code.STATUS_CODES.UNAUTHORIZED)
+          responce.sendResponse(res, '{Please Enter all Required Filed', status_code.STATUS_CODES.UNAUTHORIZED)
         })
       }).catch((message) => {
         responce.sendResponse(res, 'Password hasing Error', status_code.STATUS_CODES.UNAUTHORIZED)
@@ -62,16 +62,16 @@ module.exports.login = function (req, res) {
       var result = hash_service.compare_password(req.body.customer_password, message[0].customer_password);
       result.then((msg) => {
         if (msg) {
-          token=jwt.sign(user,secret_key)
+          token = jwt.sign(user, secret_key)
           //console.log(token)
-         // {console.log(":)")}
           return res.status(200).json({
-              message: 'Auth Successful',
-              token: token,
-              customer_email: req.body.customer_email,
-              customer_id: message[0].customer_id
+            message: 'Auth Successful',
+            token: token,
+            customer_email: req.body.customer_email,
+            customer_id: message[0].customer_id,
+
           });
-      }
+        }
       }).catch((msg) => {
         return responce.sendResponse(res, "Invalid password", status_code.STATUS_CODES.UNAUTHORIZED);
       })
@@ -79,6 +79,7 @@ module.exports.login = function (req, res) {
   }).catch((message) => {
     responce.sendResponse(res, "Some Error", status_code.STATUS_CODES.BAD_REQUEST);
   })
+
 }
 
 

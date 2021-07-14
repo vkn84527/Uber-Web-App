@@ -44,20 +44,47 @@ module.exports.check_bookings = function (req, res) {
 
 module.exports.ride_booking = function (req, res) {
     //var booking_date_time = new Date(dt.now())
-    
-    customer_id = message[0].customer_id
+    customer_id = req["customer_id"]
     var current_time = new Date(dt.now())
-    var sql_query = 'insert into booking (customer_id ,booking_date_time,source_ride,destination_ride,status,driver_id)values(?, ?, ?, ?, ?, ?)';
-    var values = [customer_id, current_time, req.body.source_ride, req.body.destination_ride, "booked", req.body.driver_id];
+    var driver_id = req.body.driver_id
 
-    var results = execute_query(sql_query, values)
-    results.then((message) => {
-        id = message.insertId
-        //return res.json(booking)
-        responses.sendResponse(res, `Your Booking_Id is : ${id}`, constants.STATUS_CODES.SUCCESS)
+    var sal_query1 = 'select * from booking where status ="booked" and driver_id=?'
+    var values1 = [driver_id]
+    var result1 = execute_query(sal_query1,values1)
+    result1.then((mess) => {
+        if (mess.length !== 0) {
+            responses.sendResponse(res, `Driver_ID: ${driver_id} is busy with Customer_Id: ${customer_id}`, constants.STATUS_CODES.SUCCESS)
+        } else {
+            var sal_query2 = 'select * from booking where status ="booked" and customer_id=?'
+            var values2 = [customer_id]
+            var result2 = execute_query(sal_query2,values2)
+            result2.then((msg) => {
+                //console.log(msg)
+                if (msg.length === 0) {
+                    responses.sendResponse(res, `Customer_Id: ${customer_id} is busy with Driver_ID: ${driver_id}`, constants.STATUS_CODES.SUCCESS)
+                } else {
 
-    }).catch((message) => {
-        responses.sendResponse(res, "Some Error", constants.STATUS_CODES.BAD_REQUEST)
+                    var sql_query = 'insert into booking (customer_id ,booking_date_time,source_ride,destination_ride,status,driver_id)values(?, ?, ?, ?, ?, ?)';
+                    var values = [customer_id, current_time, req.body.source_ride, req.body.destination_ride, "booked", driver_id];
+
+                    var results = execute_query(sql_query, values)
+                    results.then((message) => {
+                        id = message.insertId
+                        //return res.json(booking)
+                        responses.sendResponse(res, `Your Booking_Id is : ${id}`, constants.STATUS_CODES.SUCCESS)
+
+                    }).catch((message) => {
+                        responses.sendResponse(res, "Some Error ", constants.STATUS_CODES.BAD_REQUEST)
+                    })
+                }
+
+            }).catch((msg) => {
+                responses.sendResponse(res, "Some Erorr with with Customer_Id", constants.STATUS_CODES.NOT_FOUND)
+            })
+        }
+
+    }).catch((mess) => {
+        responses.sendResponse(res, "Some Erorr with Driver_Id", constants.STATUS_CODES.NOT_FOUND)
     })
 }
 
