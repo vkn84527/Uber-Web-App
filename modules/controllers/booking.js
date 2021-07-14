@@ -25,14 +25,32 @@ module.exports.find_drivers = function (req, res) {
 module.exports.check_bookings = function (req, res) {
 
     var booking_id = req.body.booking_id
-    var sql_query = 'select * from booking where booking_id=?';
+    var sql_query = 'select * from booking where booking_id=? and status="booked"';
     var values = [req.body.booking_id]
     let results = execute_query(sql_query, values)
     results.then((message) => {
         if (message.length !== 0) {
-            responses.sendResponse(res, "You have already booked a booking", constants.STATUS_CODES.SUCCESS)
+            responses.sendResponse(res, "You have already booked a booking", constants.STATUS_CODES.BAD_REQUEST)
         } else {
-            responses.sendResponse(res, "Your Booking ID is Not match", constants.STATUS_CODES.NOT_FOUND)
+            var sql_query1 = 'select * from booking where booking_id=? and status="cancelled"';
+            var values1 = [req.body.booking_id]
+            let results1 = execute_query(sql_query1, values1)
+            results1.then((mess) => {
+                if (mess.length !== 0) {
+                    responses.sendResponse(res, "You booking is cancelled", constants.STATUS_CODES.BAD_REQUEST)
+                } else {
+                    var sql_query2 = 'select * from booking where booking_id=? and status="completed"';
+                    var values2 = [req.body.booking_id]
+                    let results2 = execute_query(sql_query2, values2)
+                    results2.then((mesg) => {
+                        if (mesg.length !== 0) {
+                            responses.sendResponse(res, "You booking ride is completed", constants.STATUS_CODES.BAD_REQUEST)
+                        } else {
+                            responses.sendResponse(res, "Your Booking ID is Not match", constants.STATUS_CODES.NOT_FOUND)
+                        }
+                    })
+                }
+            })
         }
     }).catch((message) => {
         responses.sendResponse(res, "Some Erorr", constants.STATUS_CODES.NOT_FOUND)
@@ -90,11 +108,11 @@ module.exports.cancel_booking = (req, res) => {
     var values = [booking_id]
     let results = execute_query(sql_query, values)
     results.then((message) => {
-        console.log(message)
+        //console.log(message)
         if (message.message[27] === '0') {
             responses.sendResponse(res, "Alredy calcelled or Booking_Id is not Valid", constants.STATUS_CODES.SUCCESS)
         } else {
-            responses.sendResponse(res, "booking cancelled", constants.STATUS_CODES.SUCCESS)
+            responses.sendcancelResponse(res, "booking cancelled",req.body.cancel_resion, constants.STATUS_CODES.SUCCESS)
         }
     }).catch((message) => {
         responses.sendResponse(res, "Some Error", constants.STATUS_CODES.SUCCESS)

@@ -4,7 +4,7 @@ const status_code = require('../constants/constants')
 const execute_query = require('./db_query').execute_query
 const hash_service = require('../common_functions/hashing');
 const jwt = require('jsonwebtoken')
-var secret_key = process.env.secret_key
+var secret_key1 = process.env.secret_key1
 
 module.exports.login = function (req, res) {
     var sql_query = 'SELECT * FROM driver WHERE driver_email = ?';
@@ -18,7 +18,7 @@ module.exports.login = function (req, res) {
             const user = { driver_email: req.body.driver_email, driver_id: message.insertId }
             var check_pass = hash_service.compare_password(req.body.driver_password, message[0].driver_password)
             check_pass.then((mess) => {
-                token = jwt.sign(user, secret_key)
+                token = jwt.sign(user, secret_key1)
                 responce.sendtokendriverResponse(res, 'Auth Successful', token, req.body.driver_email, message[0].driver_id, status_code.STATUS_CODES.SUCCESS)
 
             }).catch((mess) => {
@@ -51,7 +51,7 @@ module.exports.register = function (req, res) {
                     console.log("Email send on your Mail :)")
                     //sendmail.ab()
                     const user = { driver_email: req.body.driver_email, driver_id: message.insertId }
-                    token = jwt.sign(user, secret_key)
+                    token = jwt.sign(user, secret_key1)
                     //console.log(token)
                     responce.sendtokendriverResponse(res, 'Driver registered sucessfully', token, req.body.driver_email, message.insertId, status_code.STATUS_CODES.SUCCESS)
 

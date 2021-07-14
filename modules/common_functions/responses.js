@@ -5,6 +5,14 @@ const sendResponse = (res, msg, status) => {
     })
 }
 
+const sendcancelResponse = (res, msg,resion, status) => {
+    return res.json({
+        message: msg,
+        Cancel_resion:resion,
+        status: status
+    })
+}
+
 const sendtokencustomerResponse = (res, msg, token, customer_email, customer_id, status) => {
     return res.json({
         Message: msg,
@@ -25,4 +33,4 @@ const sendtokendriverResponse = (res, msg, token, driver_email, driver_id, statu
     })
 }
 
-module.exports = { sendResponse, sendtokencustomerResponse, sendtokendriverResponse }
+module.exports = { sendResponse, sendcancelResponse,sendtokencustomerResponse, sendtokendriverResponse }
