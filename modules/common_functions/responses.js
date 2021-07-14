@@ -5,4 +5,24 @@ const sendResponse = (res, msg, status) => {
     })
 }
 
-module.exports = { sendResponse }
+const sendtokencustomerResponse = (res, msg, token, customer_email, customer_id, status) => {
+    return res.json({
+        Message: msg,
+        Token: token,
+        Customer_email: customer_email,
+        Customer_ID: customer_id,
+        Status: status
+    })
+}
+
+const sendtokendriverResponse = (res, msg, token, driver_email, driver_id, status) => {
+    return res.json({
+        Message: msg,
+        Token: token,
+        Driver_email: driver_email,
+        Driver_ID: driver_id,
+        Status: status
+    })
+}
+
+module.exports = { sendResponse, sendtokencustomerResponse, sendtokendriverResponse }

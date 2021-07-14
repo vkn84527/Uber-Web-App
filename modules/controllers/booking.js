@@ -9,7 +9,6 @@ module.exports.find_drivers = function (req, res) {
     var sql_query = 'select driver_id, vechile_id,driver_name,driver_phone from driver where driver_id not in \
         (select driver_id from booking where status="booked")'
     var values = []
-
     let results = execute_query(sql_query, values)
     results.then((message) => {
         if (message.length === 0) {
@@ -21,7 +20,6 @@ module.exports.find_drivers = function (req, res) {
     }).catch((message) => {
         responses.sendResponse(res, message, constants.STATUS_CODES.NOT_FOUND)
     })
-
 }
 
 module.exports.check_bookings = function (req, res) {
@@ -43,7 +41,6 @@ module.exports.check_bookings = function (req, res) {
 
 
 module.exports.ride_booking = function (req, res) {
-    //var booking_date_time = new Date(dt.now())
     customer_id = req["customer_id"]
     var current_time = new Date(dt.now())
     var driver_id = req.body.driver_id
@@ -72,17 +69,14 @@ module.exports.ride_booking = function (req, res) {
                         id = message.insertId
                         //return res.json(booking)
                         responses.sendResponse(res, `Your Booking_Id is : ${id}`, constants.STATUS_CODES.SUCCESS)
-
                     }).catch((message) => {
                         responses.sendResponse(res, "Some Error ", constants.STATUS_CODES.BAD_REQUEST)
                     })
                 }
-
             }).catch((msg) => {
                 responses.sendResponse(res, "Some Erorr with with Customer_Id", constants.STATUS_CODES.NOT_FOUND)
             })
         }
-
     }).catch((mess) => {
         responses.sendResponse(res, "Some Erorr with Driver_Id", constants.STATUS_CODES.NOT_FOUND)
     })
@@ -105,7 +99,6 @@ module.exports.cancel_booking = (req, res) => {
     }).catch((message) => {
         responses.sendResponse(res, "Some Error", constants.STATUS_CODES.SUCCESS)
     })
-
 }
 
 

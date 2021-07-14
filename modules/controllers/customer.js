@@ -9,7 +9,6 @@ var salt = 10
 var secret_key = process.env.secret_key
 
 
-
 module.exports.register = function (req, res) {
 
   var today = new Date();
@@ -23,7 +22,6 @@ module.exports.register = function (req, res) {
     else {
       var hash = hash_service.hash_password(req.body.customer_password)
       hash.then((hash) => {
-
         var sql_query = 'INSERT INTO customer(customer_name,customer_phone,customer_email,customer_password,created_at,updated_at) values(?,?,?,?,?,?)'
         var values = [req.body.customer_name, req.body.customer_phone, req.body.customer_email, hash, today, today]
         const results = execute_query(sql_query, values)
@@ -35,12 +33,7 @@ module.exports.register = function (req, res) {
 
           const user = { customer_email: req.body.customer_email, customer_id: message.insertId }
           token = jwt.sign(user, secret_key)
-          return res.status(200).json({
-            message: 'User registered sucessfully',
-            token: token,
-            customer_email: req.body.customer_email,
-            customer_id: message.insertId,
-          });
+          responce.sendtokencustomerResponse(res, 'User registered sucessfully', token, req.body.customer_email, message.insertId, status_code.STATUS_CODES.SUCCESS)
 
         }).catch((message) => {
           //console.log(message)
@@ -66,19 +59,11 @@ module.exports.login = function (req, res) {
     }
     else {
       const user = { customer_email: req.body.customer_email, customer_id: message[0].customer_id }
-      //console.log( message[0].customer_password)
       var result = hash_service.compare_password(req.body.customer_password, message[0].customer_password);
       result.then((msg) => {
         if (msg) {
           token = jwt.sign(user, secret_key)
-          //console.log(token)
-          return res.status(200).json({
-            message: 'Auth Successful',
-            token: token,
-            customer_email: req.body.customer_email,
-            customer_id: message[0].customer_id,
-
-          });
+          responce.sendtokencustomerResponse(res, 'Auth Successful', token, req.body.customer_email, message[0].customer_id, status_code.STATUS_CODES.SUCCESS)
         }
       }).catch((msg) => {
         return responce.sendResponse(res, "Invalid password", status_code.STATUS_CODES.UNAUTHORIZED);
@@ -87,7 +72,6 @@ module.exports.login = function (req, res) {
   }).catch((message) => {
     responce.sendResponse(res, "Some Error", status_code.STATUS_CODES.BAD_REQUEST);
   })
-
 }
 
 

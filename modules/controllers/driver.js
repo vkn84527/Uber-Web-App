@@ -17,19 +17,11 @@ module.exports.login = function (req, res) {
         else {
             const user = { driver_email: req.body.driver_email, driver_id: message.insertId }
             var check_pass = hash_service.compare_password(req.body.driver_password, message[0].driver_password)
-            check_pass.then((message) => {
+            check_pass.then((mess) => {
                 token = jwt.sign(user, secret_key)
-                //console.log(token)
-                return res.status(200).json({
-                    message: 'Auth Successful',
-                    token: token,
-                    driver_email: req.body.driver_email,
-                    driver_id: message.insertId,
+                responce.sendtokendriverResponse(res, 'Auth Successful', token, req.body.driver_email, message[0].driver_id, status_code.STATUS_CODES.SUCCESS)
 
-                });
-                // return responce.sendResponse(res, 'LogIn ScussesFull', status_code.STATUS_CODES.SUCCESS);
-            }).catch((message) => {
-
+            }).catch((mess) => {
                 return responce.sendResponse(res, "Wrong Password", status_code.STATUS_CODES.BAD_REQUEST);
             })
         }
@@ -47,7 +39,6 @@ module.exports.register = function (req, res) {
         if (message.length !== 0) {
             return responce.sendResponse(res, "Email already Registered", status_code.STATUS_CODES.UNAUTHORIZED);
         } else {
-
             var hash = hash_service.hash_password(req.body.driver_password)
             hash.then((hash) => {
 
@@ -56,20 +47,13 @@ module.exports.register = function (req, res) {
                 var results = execute_query(sql_query, values)
 
                 results.then((message) => {
-
                     console.log("Driver registered sucessfully.........")
                     console.log("Email send on your Mail :)")
                     //sendmail.ab()
                     const user = { driver_email: req.body.driver_email, driver_id: message.insertId }
                     token = jwt.sign(user, secret_key)
-                    console.log(token)
-                    return res.status(200).json({
-                        message: 'Auth Successful',
-                        token: token,
-                        driver_email: req.body.driver_email,
-                        driver_id: message.insertId,
-
-                    })
+                    //console.log(token)
+                    responce.sendtokendriverResponse(res, 'Driver registered sucessfully', token, req.body.driver_email, message.insertId, status_code.STATUS_CODES.SUCCESS)
 
                 }).catch((message) => {
                     console.log(message)
@@ -84,7 +68,6 @@ module.exports.register = function (req, res) {
         responce.sendResponse(res, 'There are some error with query', status_code.STATUS_CODES.BAD_REQUEST)
     })
 }
-
 
 
 module.exports.logout = function (req, res) {
